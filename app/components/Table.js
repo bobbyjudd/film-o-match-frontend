@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 var TableRow = require('./TableRow');
 
 // Table needs to reference the matching algo.
@@ -14,10 +15,10 @@ class Table extends React.Component {
     let firstFilmo = this.props.actors[0].filmo.cast;
     let actorList = this.props.actors;
     let matchFilms = [];
-    let filmObj = {};
     //Find films that are contained in each actor's filmographies
     for(var film = 0; film < firstFilmo.length; film++)
     {
+      let filmObj = {};
         for(var j = 1; j < actorList.length; j++)
         {
 
@@ -25,7 +26,8 @@ class Table extends React.Component {
 
             for(var compFilm = 0; compFilm < actorList[j].filmo.cast.length; compFilm++)
             {
-                if(firstFilmo[film].title === actorList[j].filmo.cast[compFilm].title)//Match?
+                if(firstFilmo[film].title === actorList[j].filmo.cast[compFilm].title &&
+                firstFilmo[film].release_date === actorList[j].filmo.cast[compFilm].release_date)//Match?
                 {
                   filmObj[this.props.actors[0].name] = firstFilmo[film].character;
                   filmObj[actorList[j].name] = actorList[j].filmo.cast[compFilm].character;
@@ -48,11 +50,12 @@ class Table extends React.Component {
         if(allHave)
         {
             //Add to match array
-            console.log({
-              title: firstFilmo[film],
+            matchFilms.push({
+              title: firstFilmo[film].title,
+              year: firstFilmo[film].release_date,
+              img_url: firstFilmo[film].poster_path,
               cast: filmObj
             });
-            matchFilms.push(firstFilmo[film]);
         }
     }
     console.log(matchFilms);
@@ -81,9 +84,14 @@ class Table extends React.Component {
     }
     else {
       const matchRows = this.findMatches().map((filmObj, index) => (
-          <td key={index}>
+        <tr key={index}>
+          <td>
             {filmObj.title}
+            <br/>
+            {filmObj.year}
           </td>
+          {this.props.actors.map((actor, actIndex) => <td key={actIndex}>{filmObj.cast[actor.name]}</td>)}
+        </tr>
       ));
       return(
         <table>
@@ -92,9 +100,7 @@ class Table extends React.Component {
             <th>Movie</th>
             {tableHead}
           </tr>
-          <tr>
             {matchRows}
-          </tr>
           </tbody>
         </table>
       );
